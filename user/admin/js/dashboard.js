@@ -100,7 +100,7 @@ var ajax =   setInterval( () => {
                $(".feedBack").html(response);
                 uploadError();
             },
-            complete: (xhr, statusText) => {
+            complete: () => {
                 $(".beforeUpload").hide();
             }
         });
