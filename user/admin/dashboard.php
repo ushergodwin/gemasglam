@@ -16,7 +16,7 @@
 <script src="js/dashboard.js"></script>
 <script src="js/javascript.js"></script>
 <style type="text/css">
-  #load-stat{display: none;}
+  #load-stat,.beforUpload{display: none;}
 </style>
 <body>
 
@@ -224,6 +224,31 @@ text-sm-right" id="bottom-bar"><h4 lass=""><i class="fas fa-eye-slash text-light
          <div id="chartContainer" style="height: 370px; width: 100%;"></div>
         </div>
       </div>
+         <div class="card mt-2">
+                            <div class="card-header py-1"><h4>Upload Product Photos</h4></div>
+                            <div class="card-body">
+                                     <form enctype="multipart/form-data" action="" method="POST" id="profileForm">
+                                         <div class="input-group">
+                                           <span class="btn btn-success fileinput-button">
+                                               <i class="fas fa-plus"></i>
+                                               <span>Add files...</span>
+                                            <input type="file" name="uploaded_file[]" id="uploaded_file" multiple />
+                                         </span> &nbsp; &nbsp;
+                                         <div class="form-group">
+                                         <button type="submit" class="btn btn-primary btn-lg" id="upload"><h5><i class="fas fa-arrow-circle-up"></i> Upload</h5></button>
+                                         </div>
+                                         </div>
+                                </form>
+                                <div class="beforUpload">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>Uploading...
+                                </div>
+                                <div class="progress" style="display:none;">
+                                    <div class="progress-bar bg-success progress-bar-striped active" role="progressbar"aria-valuemin="0" aria-valuemax="100" style="width:0%"> <span class="perc">0%</span>
+                                    </div>
+                                </div>
+                                <div class="feedBack"></div>
+                           </div>
+                        </div>
       <div class="card bg-dark mt-2">
         <h5 class="card-header text-light">CALCULATOR</h5>
         <div class="card-body">
@@ -335,7 +360,52 @@ var online = setInterval( function() {
       document.getElementById('timer3').innerHTML = count;
       document.getElementById('timer4').innerHTML = count;
     }
-  }, 1000)
+  }, 1000);
+      $("#profileForm").on("submit", (e) =>{
+          e.preventDefault();
+          function uploadError() {
+             let errorValue = $(".feedBack").text();
+              let key = errorValue.search("Failed");
+              if(key !== -1) {
+                  $(".progress-bar").removeClass("bg-success");
+                  $(".progress-bar").addClass("bg-warning");
+                  $(".perc").text("0% Upload Failed");
+              }else {
+                  $(".progress-bar").addClass("bg-success");
+                  $(".progress-bar").removeClass("bg-warning");
+              }
+          }
+          let formData = new FormData($("#profileForm")[0])
+        $.ajax({
+           xhr: function() {
+               var xhr = new window.XMLHttpRequest();
+               xhr.upload.addEventListener("progress", function(evt) {
+                   if (evt.lengthComputable) {
+                       var percentComplete = Math.round( (evt.loaded * 100) / evt.total );
+                       $(".progress").show();
+                       $(".progress-bar").css({"width": percentComplete+'%'});
+                       $(".perc").text(percentComplete+'% Complete');
+                   }
+               }, false);
+               return xhr;
+           },
+            url: 'upload.php',
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforSend: () => {
+                $(".beforeUpload").show();
+            },
+            success: (response) => {
+               $(".feedBack").html(response);
+                uploadError();
+            },
+            complete: (xhr, statusText) => {
+                $(".beforeUpload").hide();
+            }
+        });
+    });
   });
 </script>
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
