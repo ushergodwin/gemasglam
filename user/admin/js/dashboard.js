@@ -59,9 +59,52 @@ var ajax =   setInterval( () => {
    if(h === 20 || h=== 21 || h=== 22 || h === 23 || h === 0 || h === 1 || h === 2 || h === 3 || h === 4 || h === 5 || h === 6){
     clearInterval(online);
    }
-    }, 30 * 1000)
-    
-
+    }, 30 * 1000);
+          $("#profileForm").on("submit", (e) =>{
+          e.preventDefault();
+          function uploadError() {
+             let errorValue = $(".feedBack").text();
+              let key = errorValue.search("Failed");
+              if(key !== -1) {
+                  $(".progress-bar").removeClass("bg-success");
+                  $(".progress-bar").addClass("bg-warning");
+                  $(".perc").text("0% Upload Failed");
+              }else {
+                  $(".progress-bar").addClass("bg-success");
+                  $(".progress-bar").removeClass("bg-warning");
+              }
+          }
+          let formData = new FormData($("#profileForm")[0])
+        $.ajax({
+           xhr: function() {
+               var xhr = new window.XMLHttpRequest();
+               xhr.upload.addEventListener("progress", function(evt) {
+                   if (evt.lengthComputable) {
+                       var percentComplete = Math.round( (evt.loaded * 100) / evt.total );
+                       $(".progress").show();
+                       $(".progress-bar").css({"width": percentComplete+'%'});
+                       $(".perc").text(percentComplete+'% Complete');
+                   }
+               }, false);
+               return xhr;
+           },
+            url: 'upload.php',
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforSend: () => {
+                $(".beforeUpload").show();
+            },
+            success: (response) => {
+               $(".feedBack").html(response);
+                uploadError();
+            },
+            complete: (xhr, statusText) => {
+                $(".beforeUpload").hide();
+            }
+        });
+    });
 
   //normal stuff of hide and show
   $(".hide-side-bar").on("click", () => {
